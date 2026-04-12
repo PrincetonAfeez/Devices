@@ -1,0 +1,7 @@
+# Smart Device Controller — Day 15
+#
+# The CLI and device simulation use only the Python standard library.
+# Install test tooling with:
+#   pip install -r requirements.txt
+
+pytest>=8
