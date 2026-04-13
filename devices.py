@@ -187,3 +187,60 @@ class Camera(Device):
     def recording_history(self) -> tuple[RecordingSession, ...]:
         return tuple(self._recording_history)
 
+    def _end_recording(self, reason: str) -> None:
+        if self._recording_started_at is None:
+            raise DeviceStateError("Recording history is inconsistent.")
+        stopped_at = self._now()
+        self._recording_history.append(
+            RecordingSession(started_at=self._recording_started_at, stopped_at=stopped_at)
+        )
+        self._recording = False
+        self._recording_started_at = None
+        self._log(f"Recording stopped ({reason})")
+
+    def start_recording(self) -> None:
+        self._require_power("start recording")
+        if self._recording:
+            raise DeviceStateError(f"{self.name} is already recording.")
+        self._recording = True
+        self._recording_started_at = self._now()
+        self._log("Recording started")
+
+    def stop_recording(self) -> None:
+        self._require_power("stop recording")
+        if not self._recording:
+            raise DeviceStateError(f"{self.name} is not recording.")
+        self._end_recording("manual stop")
+
+    def toggle_night_mode(self) -> bool:
+        self._require_power("toggle night mode")
+        self._night_mode = not self._night_mode
+        state = "enabled" if self._night_mode else "disabled"
+        self._log(f"Night mode {state}")
+        return self._night_mode
+
+    def set_motion_detection(self, enabled: bool) -> None:
+        self._require_power("change motion detection")
+        self._motion_detection = enabled
+        state = "enabled" if enabled else "disabled"
+        self._log(f"Motion detection {state}")
+
+    def _before_power_off(self) -> None:
+        if self._recording:
+            self._end_recording("power loss")
+
+    def _status_fields(self) -> dict[str, object]: 
+        return {
+            "recording": self.recording,
+            "night_mode": self.night_mode,
+            "motion_detection": self.motion_detection,
+            "recording_sessions": len(self._recording_history),
+        }
+
+    def _self_check_details(self) -> dict[str, object]:
+        return {
+            "lens": "clear",
+            "infrared_leds": "ready" if self._night_mode else "standby",
+            "motion_sensor": "enabled" if self._motion_detection else "disabled",
+            "recording": self.recording,
+        }
