@@ -504,3 +504,89 @@ class AlarmSystem(Device):
             "siren": "silent" if self.silent_alarm else "audible",
             "triggered": self.triggered,
         }
+
+class Thermostat(Device): 
+    def __init__(
+        self,
+        device_id: str,
+        name: str,
+        *,
+        target_temperature: float = 72.0,
+        current_temperature: float = 72.0,
+        alert_threshold: float = 4.0,
+        clock: TimestampFactory | None = None,
+    ) -> None:
+        super().__init__(device_id, name, clock=clock)
+        if alert_threshold <= 0:
+            raise ValueError("alert_threshold must be positive.")
+        self._target_temperature = float(target_temperature)
+        self._current_temperature = float(current_temperature)
+        self._alert_threshold = float(alert_threshold)
+        self._mode = "idle"
+        self._sync_mode()
+
+    @property
+    def target_temperature(self) -> float:
+        return self._target_temperature
+
+    @property
+    def current_temperature(self) -> float:
+        return self._current_temperature
+
+    @property
+    def alert_threshold(self) -> float:
+        return self._alert_threshold
+
+    @property
+    def mode(self) -> str:
+        return self._mode
+
+    @property
+    def threshold_alert(self) -> str | None:
+        deviation = abs(self.current_temperature - self.target_temperature)
+        if deviation > self.alert_threshold:
+            return (
+                f"Temperature is {deviation:.1f}F away from target "
+                f"({self.target_temperature:.1f}F)."
+            )
+        return None
+
+    def _sync_mode(self) -> None:
+        difference = self.target_temperature - self.current_temperature
+        if abs(difference) <= 0.5:
+            self._mode = "idle"
+        elif difference > 0:
+            self._mode = "heating"
+        else:
+            self._mode = "cooling"
+
+    def set_target_temperature(self, temperature: float) -> None:
+        self._require_power("set the target temperature")
+        self._target_temperature = float(temperature)
+        self._sync_mode()
+        self._log(f"Target temperature set to {self.target_temperature:.1f}F")
+
+    def update_current_temperature(self, temperature: float) -> None:
+        self._require_power("update the current temperature")
+        self._current_temperature = float(temperature)
+        self._sync_mode()
+        message = f"Current temperature updated to {self.current_temperature:.1f}F"
+        if self.threshold_alert:
+            message = f"{message}; alert raised"
+        self._log(message)
+
+    def _status_fields(self) -> dict[str, object]:
+        return {
+            "target_temperature": round(self.target_temperature, 1),
+            "current_temperature": round(self.current_temperature, 1),
+            "mode": self.mode,
+            "threshold_alert": self.threshold_alert or "clear",
+        }
+
+    def _self_check_details(self) -> dict[str, object]:
+        return {
+            "target_temperature": self.target_temperature,
+            "current_temperature": self.current_temperature,
+            "mode": self.mode,
+            "threshold_alert": self.threshold_alert or "clear",
+        }
