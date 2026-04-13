@@ -88,3 +88,6 @@ class Device:
 
     def _refresh_state(self) -> None:
         """Hook for subclasses that maintain time-sensitive state."""
+
+    def _before_power_off(self) -> None:
+        """Hook for subclasses that must react before power is cut."""
