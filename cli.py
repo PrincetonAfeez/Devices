@@ -266,6 +266,39 @@ class DeviceCLI:
         print("  logs <device_id> [n]  Show recent activity for a device")
         print("  help                  Show this help text")
         print("  quit                  Exit the simulator")
+    
+    def _print_device_help(self, device: Device) -> None:
+        print("Generic device commands:")
+        print("  on / off              Power the device on or off")
+        print("  status                Show the current device state")
+        print("  check                 Run a self-check")
+        print("  log [n]               Show recent device activity")
+        print("  back                  Return to the panel view")
+        print("  list / report         Reuse the panel-level commands")
+        print("  quit                  Exit the simulator")
+
+        if isinstance(device, Camera):
+            print("Camera commands:")
+            print("  start / stop          Control recording")
+            print("  night                 Toggle night mode")
+            print("  motion <on|off>       Change motion detection")
+            print("  history               Show completed recording sessions")
+        elif isinstance(device, Lock):
+            print("Lock commands:")
+            print("  lock                  Secure the lock")
+            print("  unlock <keycode>      Unlock with a valid keycode")
+        elif isinstance(device, AlarmSystem):
+            print("Alarm commands:")
+            print("  arm <mode>            Arm in away, stay, or perimeter mode")
+            print("  disarm <reset_code>   Disarm when not triggered")
+            print("  trigger               Trigger the alarm")
+            print("  reset <reset_code>    Reset a triggered alarm")
+            print("  silent <on|off>       Toggle the silent alarm flag")
+        elif isinstance(device, Thermostat):
+            print("Thermostat commands:")
+            print("  target <temp>         Set the target temperature")
+            print("  current <temp>        Simulate a current reading")
+            print("  alert                 Show the threshold alert, if any")
 
 
 
