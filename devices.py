@@ -10,3 +10,6 @@ TimestampFactory = Callable[[], datetime]
 
 class DeviceError(Exception):
     """Base error for the Vault OS device simulator."""
+
+class DevicePoweredOffError(DeviceError):
+    """Raised when a powered-off device receives an operational command."""
