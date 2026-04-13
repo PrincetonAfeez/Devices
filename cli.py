@@ -194,6 +194,43 @@ class DeviceCLI:
         print("Unknown lock command. Type 'help' to see device commands.")
         return False
 
+    def _handle_alarm_command(self, alarm: AlarmSystem, command: str, args: list[str]) -> bool:
+        if command == "arm":
+            if len(args) != 1:
+                print("Usage: arm <away|stay|perimeter>")
+                return False
+            alarm.arm(args[0])
+            print(f"{alarm.name} armed in {alarm.arm_mode} mode.")
+            return False
+        if command == "disarm":
+            if len(args) != 1:
+                print("Usage: disarm <reset_code>")
+                return False
+            alarm.disarm(args[0])
+            print(f"{alarm.name} disarmed.")
+            return False
+        if command == "trigger":
+            alarm.trigger()
+            style = "silent" if alarm.silent_alarm else "audible"
+            print(f"{alarm.name} triggered ({style}).")
+            return False
+        if command == "reset":
+            if len(args) != 1:
+                print("Usage: reset <reset_code>")
+                return False
+            alarm.reset(args[0])
+            print(f"{alarm.name} reset and disarmed.")
+            return False
+        if command == "silent":
+            if len(args) != 1 or args[0].lower() not in {"on", "off"}:
+                print("Usage: silent <on|off>")
+                return False
+            alarm.set_silent_alarm(args[0].lower() == "on")
+            print(f"Silent alarm {args[0].lower()}.")
+            return False
+        print("Unknown alarm command. Type 'help' to see device commands.")
+        return False
+
 
 
 
