@@ -75,3 +75,6 @@ class Device:
     @property
     def activity_log(self) -> tuple[ActivityEntry, ...]: 
         return tuple(self._activity_log)
+
+    def _now(self) -> datetime: 
+        return self._clock()
