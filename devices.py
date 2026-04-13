@@ -358,3 +358,53 @@ class Lock(Device):
         self._last_unlocked_at = self._now()
         self._log("Unlocked")
 
+    def unlock(self, keycode: str) -> None:
+        self._require_power("unlock")
+        self._refresh_state()
+        if self.is_locked_out:
+            remaining = self._lockout_seconds_remaining()
+            raise DeviceLockoutError(
+                f"{self.name} is locked out for another {remaining} seconds."
+            )
+        if str(keycode) != self._keycode:
+            self._failed_attempts += 1
+            self._log("Invalid keycode supplied")
+            if self._failed_attempts >= self._lockout_threshold:
+                self._locked_out_until = self._now() + timedelta(
+                    seconds=self._lockout_duration_seconds
+                )
+                self._log(
+                    f"Lockout engaged for {self._lockout_duration_seconds} seconds"
+                )
+                raise DeviceLockoutError(
+                    f"Too many failed attempts. {self.name} is now locked out."
+                )
+            raise DeviceAuthorizationError("Invalid keycode.")
+        self._failed_attempts = 0
+        self._locked_out_until = None
+        if not self._locked:
+            self._last_unlocked_at = self._now()
+            self._log("Unlock verified while device was already unlocked")
+            return
+        self._locked = False
+        self._last_unlocked_at = self._now()
+        self._log("Unlocked")
+
+    def _status_fields(self) -> dict[str, object]: 
+        self._refresh_state()
+        return {
+            "locked": self.locked,
+            "failed_attempts": self.failed_attempts,
+            "locked_out": self.is_locked_out,
+            "lockout_seconds_remaining": self._lockout_seconds_remaining(),
+            "auto_lock_seconds": self.auto_lock_seconds,
+        }
+
+    def _self_check_details(self) -> dict[str, object]:
+        self._refresh_state()
+        return {
+            "bolt": "extended" if self.locked else "retracted",
+            "failed_attempts": self.failed_attempts,
+            "lockout_active": self.is_locked_out,
+            "auto_lock_seconds": self.auto_lock_seconds,
+        }
