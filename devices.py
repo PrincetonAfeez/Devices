@@ -78,3 +78,10 @@ class Device:
 
     def _now(self) -> datetime: 
         return self._clock()
+
+    def _log(self, message: str) -> None:
+        self._activity_log.append(ActivityEntry(timestamp=self._now(), message=message))
+
+    def _require_power(self, action: str) -> None: 
+        if not self._powered_on:
+            raise DevicePoweredOffError(f"{self.name} is powered off and cannot {action}.")
