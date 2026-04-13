@@ -21,3 +21,9 @@ class DevicePanel:
 
     def list_devices(self) -> tuple[Device, ...]: 
         return self.devices
+
+    def get_device(self, device_id: str) -> Device:
+        try:
+            return self._devices[device_id]
+        except KeyError as exc:
+            raise KeyError(f"Unknown device ID: {device_id}") from exc
