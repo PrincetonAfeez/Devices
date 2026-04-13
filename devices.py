@@ -273,3 +273,18 @@ class Lock(Device):
         self._locked_out_until: datetime | None = None
         self._last_unlocked_at: datetime | None = None
 
+    @property
+    def locked(self) -> bool:
+        return self._locked
+
+    @property
+    def failed_attempts(self) -> int:
+        return self._failed_attempts
+
+    @property
+    def auto_lock_seconds(self) -> int:
+        return self._auto_lock_seconds
+
+    @property
+    def is_locked_out(self) -> bool:
+        return self._lockout_seconds_remaining() > 0
