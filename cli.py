@@ -95,7 +95,56 @@ class DeviceCLI:
             return False
         print("Unknown command. Type 'help' to see the available commands.")
         return False
+    
+    def _handle_device_command(self, command: str, args: list[str]) -> bool:
+        device = self._selected_device
+        assert device is not None
 
+        if command in {"back", "leave"}:
+            print(f"Leaving {device.device_id}.")
+            self._selected_device = None
+            return False
+        if command in {"quit", "exit"}:
+            print("Session closed.")
+            return True
+        if command == "help":
+            self._print_device_help(device)
+            return False
+        if command == "status":
+            self._print_device_status(device)
+            return False
+        if command == "on":
+            device.power_on()
+            print(f"{device.name} powered on.")
+            return False
+        if command == "off":
+            device.power_off()
+            print(f"{device.name} powered off.")
+            return False
+        if command in {"check", "self-check"}:
+            result = device.run_self_check()
+            print(f"Self-check passed for {result['device_id']}: {result['details']}")
+            return False
+        if command == "log":
+            count = int(args[0]) if args else 10
+            self._print_activity_log(device, count)
+            return False
+        if command == "list":
+            self._print_device_list()
+            return False
+        if command == "report":
+            self._print_status_report()
+            return False
+        if isinstance(device, Camera):
+            return self._handle_camera_command(device, command, args)
+        if isinstance(device, Lock):
+            return self._handle_lock_command(device, command, args)
+        if isinstance(device, AlarmSystem):
+            return self._handle_alarm_command(device, command, args)
+        if isinstance(device, Thermostat):
+            return self._handle_thermostat_command(device, command, args)
+        print("This device type has no extra commands.")
+        return False
 
 
 
