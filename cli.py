@@ -309,6 +309,19 @@ class DeviceCLI:
                 f"  {status['device_id']}: {status['name']} "
                 f"[{status['device_type']}, power={'on' if status['powered_on'] else 'off'}]"
             )
+    
+    def _print_status_report(self) -> None:
+        print("Status report:")
+        for status in self._panel.status_report():
+            summary_parts = [
+                f"{key}={value}"
+                for key, value in status.items()
+                if key not in {"device_id", "name", "device_type"}
+            ]
+            print(
+                f"  {status['device_id']} | {status['name']} | "
+                f"{status['device_type']} | {', '.join(summary_parts)}"
+            )
 
 
 
