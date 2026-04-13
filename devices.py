@@ -13,3 +13,6 @@ class DeviceError(Exception):
 
 class DevicePoweredOffError(DeviceError):
     """Raised when a powered-off device receives an operational command."""
+
+class DeviceStateError(DeviceError):
+    """Raised when a command is invalid for the current device state."""
