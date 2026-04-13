@@ -41,3 +41,17 @@ class RecordingSession:
         stop = self.stopped_at.strftime("%Y-%m-%d %H:%M:%S")
         return f"{start} -> {stop}"
 
+class Device:
+    def __init__(
+        self,
+        device_id: str,
+        name: str,
+        *,
+        clock: TimestampFactory | None = None,
+    ) -> None:
+        self._device_id = device_id
+        self._name = name
+        self._powered_on = False
+        self._activity_log: list[ActivityEntry] = []
+        self._clock = clock or datetime.now
+        self._log("Device registered on panel")
