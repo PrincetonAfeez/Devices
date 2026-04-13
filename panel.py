@@ -13,3 +13,8 @@ class DevicePanel:
     @property # 
     def devices(self) -> tuple[Device, ...]:
         return tuple(self._devices.values())
+
+    def add_device(self, device: Device) -> None: 
+        if device.device_id in self._devices:
+            raise ValueError(f"Device ID {device.device_id!r} is already in use.")
+        self._devices[device.device_id] = device
