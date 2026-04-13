@@ -178,6 +178,22 @@ class DeviceCLI:
         print("Unknown camera command. Type 'help' to see device commands.")
         return False
 
+    
+    def _handle_lock_command(self, lock: Lock, command: str, args: list[str]) -> bool:
+        if command == "lock":
+            lock.lock()
+            print(f"{lock.name} is locked.")
+            return False
+        if command == "unlock":
+            if len(args) != 1:
+                print("Usage: unlock <keycode>")
+                return False
+            lock.unlock(args[0])
+            print(f"{lock.name} is unlocked.")
+            return False
+        print("Unknown lock command. Type 'help' to see device commands.")
+        return False
+
 
 
 
