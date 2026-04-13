@@ -147,7 +147,36 @@ class DeviceCLI:
         return False
 
 
-
+    def _handle_camera_command(self, camera: Camera, command: str, args: list[str]) -> bool: 
+        if command == "start":
+            camera.start_recording()
+            print(f"{camera.name} is now recording.")
+            return False
+        if command == "stop":
+            camera.stop_recording()
+            print(f"{camera.name} stopped recording.")
+            return False
+        if command == "night":
+            enabled = camera.toggle_night_mode()
+            print(f"Night mode {'enabled' if enabled else 'disabled'}.")
+            return False
+        if command == "motion":
+            if len(args) != 1 or args[0].lower() not in {"on", "off"}:
+                print("Usage: motion <on|off>")
+                return False
+            camera.set_motion_detection(args[0].lower() == "on")
+            print(f"Motion detection {args[0].lower()}.")
+            return False
+        if command == "history":
+            if not camera.recording_history:
+                print("No completed recording sessions yet.")
+                return False
+            print("Recording history:")
+            for session in camera.recording_history:
+                print(f"  {session.format()}")
+            return False
+        print("Unknown camera command. Type 'help' to see device commands.")
+        return False
 
 
 
