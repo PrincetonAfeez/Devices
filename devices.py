@@ -91,3 +91,17 @@ class Device:
 
     def _before_power_off(self) -> None:
         """Hook for subclasses that must react before power is cut."""
+
+    def _status_fields(self) -> dict[str, object]:
+        return {}
+
+    def _self_check_details(self) -> dict[str, object]: 
+        return {"power_relay": "responsive"}
+
+    def power_on(self) -> None: 
+        if self._powered_on:
+            self._log("Power-on requested while device was already on")
+            return
+        self._powered_on = True
+        self._log("Powered on")
+
