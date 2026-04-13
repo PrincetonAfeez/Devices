@@ -59,3 +59,7 @@ class Device:
     @property
     def device_id(self) -> str:
         return self._device_id
+
+    @property
+    def name(self) -> str:
+        return self._name
