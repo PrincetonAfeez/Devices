@@ -56,7 +56,14 @@ class DeviceCLI:
             except DeviceError as exc:
                 print(f"Device error: {exc}")
 
-
+    def _handle_command(self, raw_command: str) -> bool:
+        parts = shlex.split(raw_command)
+        if not parts:
+            return False
+        command, *args = parts
+        if self._selected_device is None:
+            return self._handle_panel_command(command.lower(), args)
+        return self._handle_device_command(command.lower(), args)
 
 
 
