@@ -288,3 +288,40 @@ class Lock(Device):
     @property
     def is_locked_out(self) -> bool:
         return self._lockout_seconds_remaining() > 0
+
+    def _lockout_seconds_remaining(self) -> int:
+        if self._locked_out_until is None:
+            return 0
+        remaining = int((self._locked_out_until - self._now()).total_seconds())
+        return max(remaining, 0)
+
+    def _refresh_lockout(self) -> None:
+        if self._locked_out_until is None:
+            return
+        if self._lockout_seconds_remaining() == 0:
+            self._locked_out_until = None
+            self._failed_attempts = 0
+            self._log("Lockout expired")
+
+    def _apply_auto_lock_if_due(self) -> None:
+        if self._locked or self._last_unlocked_at is None or self._auto_lock_seconds == 0:
+            return
+        elapsed = (self._now() - self._last_unlocked_at).total_seconds()
+        if elapsed >= self._auto_lock_seconds:
+            self._locked = True
+            self._last_unlocked_at = None
+            self._log("Auto-lock engaged after inactivity")
+
+    def _refresh_state(self) -> None:
+        self._refresh_lockout()
+        self._apply_auto_lock_if_due()
+
+    def lock(self) -> None:
+        self._require_power("lock")
+        self._refresh_state()
+        if self._locked:
+            self._log("Lock command received while lock was already secured")
+            return
+        self._locked = True
+        self._last_unlocked_at = None
+        self._log("Locked")
