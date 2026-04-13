@@ -230,7 +230,32 @@ class DeviceCLI:
             return False
         print("Unknown alarm command. Type 'help' to see device commands.")
         return False
-
+    
+    def _handle_thermostat_command(
+        self,
+        thermostat: Thermostat,
+        command: str,
+        args: list[str],
+    ) -> bool:
+        if command == "target":
+            if len(args) != 1:
+                print("Usage: target <temperature>")
+                return False
+            thermostat.set_target_temperature(float(args[0]))
+            print(f"Target temperature set to {thermostat.target_temperature:.1f}F.")
+            return False
+        if command == "current":
+            if len(args) != 1:
+                print("Usage: current <temperature>")
+                return False
+            thermostat.update_current_temperature(float(args[0]))
+            print(f"Current temperature updated to {thermostat.current_temperature:.1f}F.")
+            return False
+        if command == "alert":
+            print(thermostat.threshold_alert or "No threshold alert.")
+            return False
+        print("Unknown thermostat command. Type 'help' to see device commands.")
+        return False
 
 
 
