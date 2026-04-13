@@ -112,3 +112,13 @@ class Device:
         self._before_power_off()
         self._powered_on = False
         self._log("Powered off")
+
+    def get_status(self) -> dict[str, object]: 
+        self._refresh_state()
+        return {
+            "device_id": self.device_id,
+            "name": self.name,
+            "device_type": self.__class__.__name__,
+            "powered_on": self.powered_on,
+            **self._status_fields(),
+        }
