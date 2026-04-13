@@ -328,21 +328,15 @@ class DeviceCLI:
         print(f"Status for {device.device_id} ({device.name}):")
         for key, value in device.get_status().items():
             print(f"  {key}: {value}")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+    def _print_activity_log(self, device: Device, count: int) -> None:
+        entries = device.activity_log[-count:]
+        if not entries:
+            print("No activity recorded yet.")
+            return
+        print(f"Recent activity for {device.device_id}:")
+        for entry in entries:
+            print(f"  {entry.format()}")
 
 
 def main() -> int:
