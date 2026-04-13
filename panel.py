@@ -18,3 +18,6 @@ class DevicePanel:
         if device.device_id in self._devices:
             raise ValueError(f"Device ID {device.device_id!r} is already in use.")
         self._devices[device.device_id] = device
+
+    def list_devices(self) -> tuple[Device, ...]: 
+        return self.devices
