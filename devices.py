@@ -55,3 +55,7 @@ class Device:
         self._activity_log: list[ActivityEntry] = []
         self._clock = clock or datetime.now
         self._log("Device registered on panel")
+
+    @property
+    def device_id(self) -> str:
+        return self._device_id
