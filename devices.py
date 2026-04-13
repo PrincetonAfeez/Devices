@@ -244,3 +244,32 @@ class Camera(Device):
             "motion_sensor": "enabled" if self._motion_detection else "disabled",
             "recording": self.recording,
         }
+
+class Lock(Device):
+    def __init__(
+        self,
+        device_id: str,
+        name: str,
+        *,
+        keycode: str,
+        lockout_threshold: int = 3,
+        lockout_duration_seconds: int = 30,
+        auto_lock_seconds: int = 15,
+        clock: TimestampFactory | None = None,
+    ) -> None:
+        super().__init__(device_id, name, clock=clock)
+        if lockout_threshold < 1:
+            raise ValueError("lockout_threshold must be at least 1.")
+        if lockout_duration_seconds < 1:
+            raise ValueError("lockout_duration_seconds must be at least 1.")
+        if auto_lock_seconds < 0:
+            raise ValueError("auto_lock_seconds cannot be negative.")
+        self._keycode = str(keycode)
+        self._locked = True
+        self._failed_attempts = 0
+        self._lockout_threshold = lockout_threshold
+        self._lockout_duration_seconds = lockout_duration_seconds
+        self._auto_lock_seconds = auto_lock_seconds
+        self._locked_out_until: datetime | None = None
+        self._last_unlocked_at: datetime | None = None
+
