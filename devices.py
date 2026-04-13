@@ -105,3 +105,10 @@ class Device:
         self._powered_on = True
         self._log("Powered on")
 
+    def power_off(self) -> None:
+        if not self._powered_on:
+            self._log("Power-off requested while device was already off")
+            return
+        self._before_power_off()
+        self._powered_on = False
+        self._log("Powered off")
