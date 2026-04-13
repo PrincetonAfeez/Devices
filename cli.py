@@ -323,6 +323,13 @@ class DeviceCLI:
                 f"{status['device_type']} | {', '.join(summary_parts)}"
             )
 
+    
+    def _print_device_status(self, device: Device) -> None:
+        print(f"Status for {device.device_id} ({device.name}):")
+        for key, value in device.get_status().items():
+            print(f"  {key}: {value}")
+
+
 
 
 
