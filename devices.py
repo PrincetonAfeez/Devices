@@ -68,3 +68,10 @@ class Device:
     def powered_on(self) -> bool:
         return self._powered_on
 
+    @property
+    def powered_on(self) -> bool:
+        return self._powered_on
+
+    @property
+    def activity_log(self) -> tuple[ActivityEntry, ...]: 
+        return tuple(self._activity_log)
