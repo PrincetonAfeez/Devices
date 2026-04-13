@@ -16,6 +16,10 @@ from devices import (
 )
 from panel import DEMO_ALARM_RESET_CODE, DEMO_LOCK_KEYCODE, DevicePanel, seed_demo_panel
 
+class DeviceCLI: 
+    def __init__(self, panel: DevicePanel | None = None) -> None:
+        self._panel = panel or seed_demo_panel()
+        self._selected_device: Device | None = None
 
 
 
