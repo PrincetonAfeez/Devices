@@ -300,7 +300,15 @@ class DeviceCLI:
             print("  current <temp>        Simulate a current reading")
             print("  alert                 Show the threshold alert, if any")
 
-
+    
+    def _print_device_list(self) -> None:
+        print("Devices:")
+        for device in self._panel.list_devices():
+            status = device.get_status()
+            print(
+                f"  {status['device_id']}: {status['name']} "
+                f"[{status['device_type']}, power={'on' if status['powered_on'] else 'off'}]"
+            )
 
 
 
