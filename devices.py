@@ -63,3 +63,8 @@ class Device:
     @property
     def name(self) -> str:
         return self._name
+
+    @property 
+    def powered_on(self) -> bool:
+        return self._powered_on
+
