@@ -19,3 +19,6 @@ class DeviceStateError(DeviceError):
 
 class DeviceAuthorizationError(DeviceError):
     """Raised when a secure device receives invalid credentials."""
+
+class DeviceLockoutError(DeviceError):
+    """Raised when a lock is temporarily unavailable after repeated failures."""
