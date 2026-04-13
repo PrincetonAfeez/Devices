@@ -122,3 +122,37 @@ class Device:
             "powered_on": self.powered_on,
             **self._status_fields(),
         }
+
+    def run_self_check(self) -> dict[str, object]:
+        self._require_power("run a self-check")
+        self._refresh_state()
+        result = {
+            "device_id": self.device_id,
+            "device_type": self.__class__.__name__,
+            "passed": True,
+            "details": self._self_check_details(),
+        }
+        self._log("Self-check completed successfully")
+        return result
+
+    def __str__(self) -> str:
+        fields = self.get_status()
+        extras = ", ".join(
+            f"{key}={value}"
+            for key, value in fields.items()
+            if key not in {"device_id", "name", "device_type"}
+        )
+        return f"{fields['device_type']} {self.device_id} ({self.name}) [{extras}]"
+
+    def __repr__(self) -> str:
+        fields = self.get_status()
+        extras = ", ".join(
+            f"{key}={value!r}"
+            for key, value in fields.items()
+            if key not in {"device_id", "name", "device_type"}
+        )
+        return (
+            f"{fields['device_type']}(device_id={self.device_id!r}, name={self.name!r}, "
+            f"{extras})"
+        )
+
