@@ -16,3 +16,6 @@ class DevicePoweredOffError(DeviceError):
 
 class DeviceStateError(DeviceError):
     """Raised when a command is invalid for the current device state."""
+
+class DeviceAuthorizationError(DeviceError):
+    """Raised when a secure device receives invalid credentials."""
