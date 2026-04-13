@@ -22,3 +22,12 @@ class DeviceAuthorizationError(DeviceError):
 
 class DeviceLockoutError(DeviceError):
     """Raised when a lock is temporarily unavailable after repeated failures."""
+
+@dataclass(frozen=True)
+class ActivityEntry:
+    timestamp: datetime
+    message: str
+
+    def format(self) -> str:
+        return f"{self.timestamp.strftime('%Y-%m-%d %H:%M:%S')} | {self.message}"
+
