@@ -257,6 +257,15 @@ class DeviceCLI:
         print("Unknown thermostat command. Type 'help' to see device commands.")
         return False
 
+    
+    def _print_panel_help(self) -> None:
+        print("Panel commands:")
+        print("  list                  List devices on the panel")
+        print("  report                Show a full status report")
+        print("  use <device_id>       Control a specific device")
+        print("  logs <device_id> [n]  Show recent activity for a device")
+        print("  help                  Show this help text")
+        print("  quit                  Exit the simulator")
 
 
 
