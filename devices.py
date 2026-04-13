@@ -408,3 +408,99 @@ class Lock(Device):
             "lockout_active": self.is_locked_out,
             "auto_lock_seconds": self.auto_lock_seconds,
         }
+
+class AlarmSystem(Device): 
+    ARM_MODES = {"away", "stay", "perimeter"}
+
+    def __init__(
+        self,
+        device_id: str,
+        name: str,
+        *,
+        reset_code: str,
+        clock: TimestampFactory | None = None,
+    ) -> None:
+        super().__init__(device_id, name, clock=clock)
+        self._reset_code = str(reset_code)
+        self._arm_mode: str | None = None
+        self._triggered = False
+        self._silent_alarm = False
+
+    @property
+    def arm_mode(self) -> str | None:
+        return self._arm_mode
+
+    @property
+    def triggered(self) -> bool:
+        return self._triggered
+
+    @property
+    def silent_alarm(self) -> bool:
+        return self._silent_alarm
+
+    def _verify_reset_code(self, reset_code: str) -> None:
+        if str(reset_code) != self._reset_code:
+            raise DeviceAuthorizationError("Invalid reset code.")
+
+    def arm(self, mode: str) -> None:
+        self._require_power("arm the alarm")
+        normalized_mode = mode.lower()
+        if normalized_mode not in self.ARM_MODES:
+            supported = ", ".join(sorted(self.ARM_MODES))
+            raise DeviceStateError(f"Arm mode must be one of: {supported}.")
+        if self._triggered:
+            raise DeviceStateError(
+                "Alarm is triggered and must be reset before changing modes."
+            )
+        self._arm_mode = normalized_mode
+        self._log(f"Alarm armed in {normalized_mode} mode")
+
+    def disarm(self, reset_code: str) -> None:
+        self._require_power("disarm the alarm")
+        if self._triggered:
+            raise DeviceStateError("Triggered alarm must be reset before disarming.")
+        self._verify_reset_code(reset_code)
+        if self._arm_mode is None:
+            self._log("Disarm requested while alarm was already idle")
+            return
+        self._arm_mode = None
+        self._log("Alarm disarmed")
+
+    def trigger(self) -> None:
+        self._require_power("trigger the alarm")
+        if self._arm_mode is None:
+            raise DeviceStateError("Alarm must be armed before it can be triggered.")
+        if self._triggered:
+            raise DeviceStateError("Alarm has already been triggered.")
+        self._triggered = True
+        style = "silently" if self._silent_alarm else "audibly"
+        self._log(f"Alarm triggered {style}")
+
+    def reset(self, reset_code: str) -> None:
+        self._require_power("reset the alarm")
+        if not self._triggered:
+            raise DeviceStateError("Alarm is not currently triggered.")
+        self._verify_reset_code(reset_code)
+        self._triggered = False
+        self._arm_mode = None
+        self._log("Alarm reset")
+
+    def set_silent_alarm(self, enabled: bool) -> None:
+        self._require_power("change the silent alarm setting")
+        self._silent_alarm = enabled
+        state = "enabled" if enabled else "disabled"
+        self._log(f"Silent alarm {state}")
+
+    def _status_fields(self) -> dict[str, object]:
+        return {
+            "arm_mode": self.arm_mode or "disarmed",
+            "triggered": self.triggered,
+            "silent_alarm": self.silent_alarm,
+        }
+
+    def _self_check_details(self) -> dict[str, object]:
+        return {
+            "arm_mode": self.arm_mode or "disarmed",
+            "siren": "silent" if self.silent_alarm else "audible",
+            "triggered": self.triggered,
+        }
