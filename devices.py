@@ -85,3 +85,6 @@ class Device:
     def _require_power(self, action: str) -> None: 
         if not self._powered_on:
             raise DevicePoweredOffError(f"{self.name} is powered off and cannot {action}.")
+
+    def _refresh_state(self) -> None:
+        """Hook for subclasses that maintain time-sensitive state."""
