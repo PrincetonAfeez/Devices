@@ -156,3 +156,34 @@ class Device:
             f"{extras})"
         )
 
+class Camera(Device): 
+    def __init__(
+        self,
+        device_id: str,
+        name: str,
+        *,
+        clock: TimestampFactory | None = None,
+    ) -> None:
+        super().__init__(device_id, name, clock=clock)
+        self._recording = False
+        self._recording_started_at: datetime | None = None
+        self._night_mode = False
+        self._motion_detection = True
+        self._recording_history: list[RecordingSession] = []
+
+    @property
+    def recording(self) -> bool:
+        return self._recording
+
+    @property
+    def night_mode(self) -> bool:
+        return self._night_mode
+
+    @property
+    def motion_detection(self) -> bool:
+        return self._motion_detection
+
+    @property
+    def recording_history(self) -> tuple[RecordingSession, ...]:
+        return tuple(self._recording_history)
+
